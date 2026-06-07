@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+
+#scroll-wrap {
+  display: flex;
+  width: 100%; height: 100%;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+#scroll-wrap::-webkit-scrollbar { display: none; }
+
+.ep {
+  flex-shrink: 0;
+  width: 100%; height: 100%;
+  scroll-snap-align: start;
+  position: relative;
+  overflow: hidden;
+}
+.ep img.bg { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+
+/* 햄버거 */
+#hamburger {
+  position: fixed;
+  top: calc(5.86vh - 4px);
+  left: calc(6.63vw - 4px);
+  z-index: 200;
+  width: 26px; height: 18px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 탭 오버레이 */
+#tab-overlay { position: fixed; inset: 0; z-index: 300; pointer-events: none; }
+#tab-overlay.open { pointer-events: auto; }
+#tab-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.35s ease; }
+#tab-overlay.open #tab-bg { opacity: 1; }
+#tab-panel {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+#tab-panel img.tab-bg { width: 100%; height: 100%; object-fit: cover; display: block; }
+#tab-overlay.open #tab-panel { transform: translateX(0); }
+
+/* 페이드 */
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes fadeOut { from{opacity:1} to{opacity:0} }
+.fadein  { animation: fadeIn  0.8s ease forwards; }
+.fadeout { animation: fadeOut 0.5s ease forwards; }
+
+.txt { position: absolute; height: auto; opacity: 0; pointer-events: none; z-index: 100; }
+/* 공통 */
+.txt1 { top: 140px; right: 40px; }
+.txt2 { bottom: 20px; left: 20px; }
+
+/* txt1 개별 width (page2 기준 스케일 통일) + top 140px */
+#t1p1 { width: 54vw; top: 140px; }
+#t1p2 { width: 60vw; top: 140px; left: 20px; right: auto; }
+#t1p3 { width: 74vw; top: 140px; right: 40px; left: auto; }
+#t1p4 { width: 41vw; top: 140px; left: 20px; right: auto; }
+
+/* txt2 개별 width (page4 기준 스케일 통일) */
+#t2p1 { width: 82vw; }
+#t2p2 { width: 67vw; right: 20px; left: auto; }
+#t2p3 { width: 73vw; }
+#t2p4 { width: 60vw; right: 20px; left: auto; }
+
+/* 로고 버튼 */
+.logo-btn {
+  position: absolute;
+  left: calc(181 / 402 * 100%);
+  top: calc(39.7 / 874 * 100%);
+  width: calc(45 / 402 * 100%);
+  height: calc(35 / 874 * 100%);
+  z-index: 150; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* > 버튼 */
+.next-btn {
+  position: absolute;
+  right: 3vw; top: 4.5vh;
+  width: 12vw; height: 5vh;
+  z-index: 150; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+</style>
+</head>
+<body>
+
+<div id="scroll-wrap">
+
+  <!-- 1페이지 -->
+  <div class="ep" id="ep1">
+    <img class="bg" src="event_page1.svg" alt="">
+    <img class="txt txt1" id="t1p1" src="event_1_text1.svg" alt="">
+    <img class="txt txt2" id="t2p1" src="event_1_text2.svg" alt="">
+    <div class="next-btn" onclick="goTo(1)"></div>
+    <a class="logo-btn" href="../main_page.html"></a>
+  </div>
+
+  <!-- 2페이지 -->
+  <div class="ep" id="ep2">
+    <img class="bg" src="event_2_page.svg" alt="">
+    <img class="txt txt1" id="t1p2" src="event_2_text1.svg" alt="">
+    <img class="txt txt2" id="t2p2" src="event_2_text2.svg" alt="">
+    <div class="next-btn" onclick="goTo(2)"></div>
+    <a class="logo-btn" href="../main_page.html"></a>
+  </div>
+
+  <!-- 3페이지 -->
+  <div class="ep" id="ep3">
+    <img class="bg" src="event_3_page.svg" alt="">
+    <img class="txt txt1" id="t1p3" src="event_3_text1.svg" alt="">
+    <img class="txt txt2" id="t2p3" src="event_3_text2.svg" alt="">
+    <div class="next-btn" onclick="goTo(3)"></div>
+    <a class="logo-btn" href="../main_page.html"></a>
+  </div>
+
+  <!-- 4페이지 -->
+  <div class="ep" id="ep4">
+    <img class="bg" src="event_4_page.svg" alt="">
+    <img class="txt txt1" id="t1p4" src="event_4_text1.svg" alt="">
+    <img class="txt txt2" id="t2p4" src="event_4_text2.svg" alt="">
+    <div class="next-btn" onclick="goTo(0)"></div>
+    <a class="logo-btn" href="../main_page.html"></a>
+  </div>
+
+</div>
+
+<!-- 햄버거 -->
+<div id="hamburger" onclick="openTab()"></div>
+
+<!-- 탭 오버레이 -->
+<div id="tab-overlay">
+  <div id="tab-bg" onclick="closeTab()"></div>
+  <div id="tab-panel">
+    <img class="tab-bg" src="../main/tab_.png" alt="">
+    <div style="position:absolute;top:180px;left:200px;display:flex;flex-direction:column;gap:32px;">
+      <a href="../taste-test-share.html" style="-webkit-tap-highlight-color:transparent;"><img src="../main/막걸리 유형테스트.svg" style="height:20px;width:auto;display:block;"></a>
+      <a href="../main_page.html" style="-webkit-tap-highlight-color:transparent;"><img src="../main/막걸리 계보도.svg" style="height:20px;width:auto;display:block;"></a>
+      <a href="event_page1.html" style="-webkit-tap-highlight-color:transparent;"><img src="../main/이벤트.svg" style="height:20px;width:auto;display:block;"></a>
+    </div>
+    <img src="../main/button.svg" onclick="closeTab()" style="position:absolute;top:140px;left:195px;width:24px;height:auto;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+  </div>
+</div>
+
+<script>
+const wrap = document.getElementById('scroll-wrap');
+
+function openTab()  { document.getElementById('tab-overlay').classList.add('open');    }
+function closeTab() { document.getElementById('tab-overlay').classList.remove('open'); }
+function goNext()   { goTo(1); }
+function goTo(page) { wrap.scrollTo({ left: wrap.clientWidth * page, behavior: 'smooth' }); }
+
+// 페이드인: 현재 보이는 페이지 기준
+function fadeInPage(t1, t2) {
+  setTimeout(() => { t1.classList.add('fadein'); t1.style.opacity = ''; }, 300);
+  setTimeout(() => { t2.classList.add('fadein'); t2.style.opacity = ''; }, 1000);
+}
+function fadeOutPage(t1, t2) {
+  [t1, t2].forEach(el => {
+    el.classList.remove('fadein');
+    el.classList.add('fadeout');
+    setTimeout(() => { el.classList.remove('fadeout'); el.style.opacity = '0'; }, 500);
+  });
+}
+
+// 첫 페이지 진입
+fadeInPage(document.getElementById('t1p1'), document.getElementById('t2p1'));
+
+// 스크롤로 페이지 전환 감지
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const id = entry.target.id;
+    if (id === 'ep1') {
+      const t1 = document.getElementById('t1p1'), t2 = document.getElementById('t2p1');
+      entry.isIntersecting ? fadeInPage(t1, t2) : fadeOutPage(t1, t2);
+    } else if (id === 'ep2') {
+      const t1 = document.getElementById('t1p2'), t2 = document.getElementById('t2p2');
+      entry.isIntersecting ? fadeInPage(t1, t2) : fadeOutPage(t1, t2);
+    } else if (id === 'ep3') {
+      const t1 = document.getElementById('t1p3'), t2 = document.getElementById('t2p3');
+      entry.isIntersecting ? fadeInPage(t1, t2) : fadeOutPage(t1, t2);
+    } else if (id === 'ep4') {
+      const t1 = document.getElementById('t1p4'), t2 = document.getElementById('t2p4');
+      entry.isIntersecting ? fadeInPage(t1, t2) : fadeOutPage(t1, t2);
+    }
+  });
+}, { threshold: 0.6, root: wrap });
+
+['ep1','ep2','ep3','ep4'].forEach(id => observer.observe(document.getElementById(id)));
+</script>
+</body>
+</html>

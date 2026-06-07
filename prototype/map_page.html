@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+
+/* 세로 스냅 스크롤 */
+#v-scroll {
+  width: 100%; height: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+#v-scroll::-webkit-scrollbar { display: none; }
+
+.v-section {
+  width: 100%; height: 100%;
+  scroll-snap-align: start;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* ── 섹션1: 막걸리 상세 ── */
+#detail-section {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background: url('images/bg_paper.png') center / cover;
+}
+#detail-section::-webkit-scrollbar { display: none; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+#detail-section img { animation: fadeIn 0.5s ease forwards; }
+
+/* ── 섹션2: 지도 ── */
+#map-section { overflow: hidden; }
+
+@keyframes mapFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+#bg       { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+            animation: mapFadeIn 0.6s ease 0s forwards; }
+#txt1     { animation: mapFadeIn 0.6s ease 0.3s forwards; opacity: 0; }
+#txt2     { animation: mapFadeIn 0.6s ease 0.6s forwards; opacity: 0; }
+#map-wrap { opacity: 1; }
+#map-wrap img.map-img { animation: mapFadeIn 0.6s ease 0.9s forwards; opacity: 0; }
+.region-btn, .region-wrap { animation: mapFadeIn 0.6s ease 1.6s forwards; opacity: 0; }
+#txt3     { animation: mapFadeIn 0.6s ease 1.3s forwards; opacity: 0; }
+
+.txt-overlay {
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  height: auto; pointer-events: none;
+}
+#txt1 { top: 12%;   width: 37%; }
+#txt2 { top: 16.1%; width: 57%; }
+#txt3 { bottom: 3%;  width: 42%; }
+
+#map-wrap {
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  top: 24%; width: 83%;
+}
+#map-wrap img.map-img { width: 100%; height: auto; display: block; }
+
+.region-btn {
+  position: absolute;
+  width: 13%; height: auto;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease;
+  z-index: 1;
+}
+.region-btn:active { transform: translate(-50%, -50%) scale(0.92); }
+
+.region-wrap {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 13%; z-index: 1;
+}
+.region-wrap > .region-btn {
+  position: relative; width: 100%; height: auto;
+  transform: none; left: auto; top: auto; display: block;
+}
+.region-wrap > .region-btn:active { transform: scale(0.92); }
+
+.event-popup {
+  position: absolute;
+  bottom: 100%; left: 50%;
+  transform: translateX(-50%);
+  width: 345%; height: auto;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 10;
+}
+.event-popup.show { opacity: 1; pointer-events: auto; cursor: pointer; }
+
+/* 햄버거 */
+#hamburger {
+  position: fixed;
+  top: calc(5.86vh - 4px); left: calc(6.63vw - 4px);
+  z-index: 200; width: 26px; height: 18px;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+
+/* 탭 오버레이 */
+#tab-overlay { position: fixed; inset: 0; z-index: 300; pointer-events: none; }
+#tab-overlay.open { pointer-events: auto; }
+#tab-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.35s ease; }
+#tab-overlay.open #tab-bg { opacity: 1; }
+#tab-panel {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+#tab-panel img.tab-bg { width: 100%; height: 100%; object-fit: cover; display: block; }
+#tab-overlay.open #tab-panel { transform: translateX(0); }
+</style>
+</head>
+<body>
+
+<div id="v-scroll">
+
+  <!-- 섹션1: 막걸리 상세 -->
+  <div class="v-section" id="detail-section">
+    <!-- goDetail()로 채워짐 -->
+  </div>
+
+  <!-- 섹션2: 지도 -->
+  <div class="v-section" id="map-section">
+    <img id="bg" src="map/map_base.svg" alt="">
+    <img class="txt-overlay" id="txt1" src="map/map_1_text1.svg" alt="">
+    <img class="txt-overlay" id="txt2" src="map/map_1_text2.svg" alt="">
+    <img class="txt-overlay" id="txt3" src="map/map_1_text3.svg" alt="">
+
+    <div id="map-wrap">
+      <img class="map-img" src="map/map_images.png" alt="">
+
+      <img class="region-btn" src="map/단양.png" alt="단양" style="left:calc(61.5% - 5px); top:calc(62.3% - 65px);" onclick="goRegion('단양')">
+      <img class="region-btn" src="map/지평.png" alt="지평" style="left:calc(61.5% + 25px); top:calc(62.3% - 50px);" onclick="goRegion('지평')">
+      <img class="region-btn" src="map/청송.png" alt="청송" style="left:calc(61.5% + 20px); top:calc(62.3% + 15px);" onclick="goRegion('청송')">
+      <div class="region-wrap" style="left:calc(61.5% - 10px); top:62.3%;">
+        <div class="event-popup" id="popup-문경">
+          <img src="map/문경이벤트.svg" style="width:100%; display:block;">
+          <div onclick="goDetail('map/문경 오미자 막걸리.svg')" style="position:absolute; top:0; left:0; width:100%; height:50%; cursor:pointer; -webkit-tap-highlight-color:transparent;"></div>
+          <div onclick="goDetail('map/구름을 벗삼아.svg')" style="position:absolute; top:50%; left:0; width:100%; height:50%; cursor:pointer; -webkit-tap-highlight-color:transparent;"></div>
+        </div>
+        <img class="region-btn" src="map/문경.png" alt="문경" onclick="goRegion('문경')">
+      </div>
+      <img class="region-btn" src="map/공주.png" alt="공주" style="left:40.4%; top:66%;" onclick="goRegion('공주')">
+      <div class="region-wrap" style="left:34%; top:81%;">
+        <div class="event-popup" id="popup-해남">
+          <img src="map/해남이벤트.svg" style="width:100%; display:block;">
+          <div onclick="goDetail('map/해창 생막걸리9도.svg')" style="position:absolute; top:0; left:0; width:100%; height:50%; cursor:pointer; -webkit-tap-highlight-color:transparent;"></div>
+          <div onclick="goDetail('map/해남 생막걸리9도.svg')" style="position:absolute; top:50%; left:0; width:100%; height:50%; cursor:pointer; -webkit-tap-highlight-color:transparent;"></div>
+        </div>
+        <img class="region-btn" src="map/해남.png" alt="해남" onclick="goRegion('해남')">
+      </div>
+      <img class="region-btn" src="map/고흥.png" alt="고흥" style="left:44%; top:81%;" onclick="goRegion('고흥')">
+    </div>
+  </div>
+
+</div>
+
+
+<!-- 로고 → 메인 이동 -->
+<a href="main_page.html" style="position:fixed; top:10px; left:50%; transform:translateX(-50%); width:100px; height:44px; z-index:200; -webkit-tap-highlight-color:transparent;"></a>
+
+<!-- 햄버거 -->
+<div id="hamburger" onclick="openTab()"></div>
+
+<!-- 탭 오버레이 -->
+<div id="tab-overlay">
+  <div id="tab-bg" onclick="closeTab()"></div>
+  <div id="tab-panel">
+    <img class="tab-bg" src="main/tab_.png" alt="">
+    <div style="position:absolute;top:180px;left:200px;display:flex;flex-direction:column;gap:32px;">
+      <a href="taste-test-share.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/막걸리 유형테스트.svg" style="height:20px;width:auto;display:block;"></a>
+      <a href="map_page.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/막걸리 계보도.svg" style="height:20px;width:auto;display:block;"></a>
+      <a href="event/event_page1.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/이벤트.svg" style="height:20px;width:auto;display:block;"></a>
+    </div>
+    <img src="main/button.svg" onclick="closeTab()" style="position:absolute;top:140px;left:195px;width:24px;height:auto;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+  </div>
+</div>
+
+<script>
+const regionData = {
+  '청송': 'map/청송 주왕 사과 막걸리.svg',
+  '단양': 'map/소백산 검은콩 막걸리.svg',
+  '지평': 'map/지평 생막걸리.svg',
+  '공주': 'map/공주 알밤 왕밤주.svg',
+  '고흥': 'map/고흥 풍양 유자 막걸리.svg'
+};
+
+const vScroll      = document.getElementById('v-scroll');
+const detailSection = document.getElementById('detail-section');
+
+// 진입 시 지도(섹션2)를 즉시 표시
+vScroll.scrollTop = vScroll.clientHeight;
+window.addEventListener('load', () => {
+  vScroll.scrollTop = vScroll.clientHeight;
+});
+
+function goDetail(svgPath) {
+  detailSection.innerHTML = `<img src="${svgPath}" style="width:100%; height:auto; display:block;" alt="">`;
+  detailSection.scrollTop = 0;
+  vScroll.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goRegion(name) {
+  const popup = document.getElementById('popup-' + name);
+  if (popup) {
+    const isShown = popup.classList.contains('show');
+    document.querySelectorAll('.event-popup').forEach(p => p.classList.remove('show'));
+    if (!isShown) popup.classList.add('show');
+  } else if (regionData[name]) {
+    goDetail(regionData[name]);
+  }
+}
+
+function openTab()  { document.getElementById('tab-overlay').classList.add('open'); }
+function closeTab() { document.getElementById('tab-overlay').classList.remove('open'); }
+
+// 지도 섹션 진입 시 애니메이션 재초기화
+const mapAnimEls = ['bg', 'txt1', 'txt2', 'map-wrap', 'txt3'];
+let mapInitialized = false;
+const mapObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      if (!mapInitialized) { mapInitialized = true; return; }
+      mapAnimEls.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.animation = 'none';
+        void el.offsetWidth;
+        el.style.animation = '';
+      });
+      document.querySelectorAll('.event-popup').forEach(p => p.classList.remove('show'));
+    }
+  });
+}, { threshold: 0.6, root: vScroll });
+mapObserver.observe(document.getElementById('map-section'));
+</script>
+</body>
+</html>

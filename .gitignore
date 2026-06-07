@@ -1,0 +1,5 @@
+node_modules/
+.claude/
+prototype/ss_*.png
+prototype/vp*.png
+prototype/screenshot_*.png
