@@ -297,7 +297,7 @@ function updateHSlides() {
   const wrapH = wrap.clientHeight;
   bottleSlices.forEach(page => {
     const t = Math.max(-1, Math.min(1, page.getBoundingClientRect().top / wrapH));
-    page._hContent.style.transform = `translateX(${t * -100}%)`;
+    page._hContent.style.transform = `translateX(${t * 100}%)`;
   });
 }
 wrap.addEventListener('scroll', updateHSlides, { passive: true });
