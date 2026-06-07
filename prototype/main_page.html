@@ -122,65 +122,143 @@ function observeFade(el, host, threshold = 0.6) {
   }, { threshold }).observe(host);
 }
 
-// ── 막걸리 병 슬라이드 5개 (수직) ───────────────────────────
+// ── 막걸리 병 슬라이드 (수평 전환, 배경 고정) ───────────────
 const BOTTLE_PATH = "M259.512 0H6.4878H0C0 54.4976 33.8015 103.935 84.3415 123.787V133H181.594V123.787C232.134 103.935 266 54.4327 266 0H259.512Z";
 const maskSvg = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 266 133'><path d='${BOTTLE_PATH}' fill='white'/></svg>")`;
 
-const bottleSlices = [];
+const bottleSlice = document.createElement('div');
+bottleSlice.className = 'slice';
+bottleSlice.style.cssText = "background:url('images/bg_paper.png') center/cover no-repeat;position:relative;overflow:hidden;";
+
+const bItems = []; // { cWrap, bWrap, tImg }
+let curB = 0, bBusy = false;
+
 for (let p = 0; p < 5; p++) {
-  const page = document.createElement('div');
-  page.className = 'slice';
-  page.style.cssText = `background:url('images/bg_paper.png') center/cover no-repeat;position:relative;`;
+  const cWrap = document.createElement('div');
+  cWrap.style.cssText = `position:absolute;inset:0;transform:translateX(${p === 0 ? '0%' : '100%'});`;
 
-  const contentWrap = document.createElement('div');
-  contentWrap.style.cssText = 'position:absolute;inset:0;';
-
-  const bottleWrap = document.createElement('div');
-  bottleWrap.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 71px));width:80%;max-width:266px;opacity:0;`;
+  const bWrap = document.createElement('div');
+  bWrap.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 71px));width:80%;max-width:266px;opacity:0;`;
 
   if (p === 0 || p === 4) {
     const img = document.createElement('img');
     img.src = p === 0 ? 'images/bottle.svg' : 'videos/mask.svg';
     img.style.cssText = 'width:100%;height:auto;display:block;';
-    bottleWrap.appendChild(img);
+    bWrap.appendChild(img);
   } else {
-    const vidWrap = document.createElement('div');
-    vidWrap.style.cssText = `width:100%;aspect-ratio:266/133;overflow:hidden;-webkit-mask-image:${maskSvg};-webkit-mask-size:100% 100%;mask-image:${maskSvg};mask-size:100% 100%;`;
+    const vWrap = document.createElement('div');
+    vWrap.style.cssText = `width:100%;aspect-ratio:266/133;overflow:hidden;-webkit-mask-image:${maskSvg};-webkit-mask-size:100% 100%;mask-image:${maskSvg};mask-size:100% 100%;`;
     const vid = document.createElement('video');
     vid.src = `videos/video${p}.mp4`;
     vid.autoplay = true; vid.loop = true; vid.muted = true;
     vid.setAttribute('playsinline', '');
     vid.style.cssText = `width:100%;height:100%;object-fit:cover;display:block;${p === 1 ? 'transform:scale(1.2);transform-origin:center;' : ''}`;
-    vidWrap.appendChild(vid);
-    bottleWrap.appendChild(vidWrap);
+    vWrap.appendChild(vid);
+    bWrap.appendChild(vWrap);
   }
 
-  const textImg = document.createElement('img');
-  textImg.src = `main/main_text${p + 1}.svg`;
-  textImg.style.cssText = 'position:absolute;bottom:calc(100% + 35px);left:50%;transform:translateX(-50%);width:100%;height:auto;opacity:0;';
-  bottleWrap.appendChild(textImg);
-  contentWrap.appendChild(bottleWrap);
-  page.appendChild(contentWrap);
-  page._hContent = contentWrap;
-
-  new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        setTimeout(() => {
-          [bottleWrap, textImg].forEach(el => { el.classList.add('text-fadein'); el.style.opacity = ''; });
-        }, 150);
-      } else {
-        [bottleWrap, textImg].forEach(el => {
-          el.classList.remove('text-fadein');
-          el.classList.add('text-fadeout');
-          setTimeout(() => { el.classList.remove('text-fadeout'); el.style.opacity = '0'; }, 500);
-        });
-      }
-    });
-  }, { threshold: 0.6 }).observe(page);
-
-  bottleSlices.push(page);
+  const tImg = document.createElement('img');
+  tImg.src = `main/main_text${p + 1}.svg`;
+  tImg.style.cssText = 'position:absolute;bottom:calc(100% + 35px);left:50%;transform:translateX(-50%);width:100%;height:auto;opacity:0;';
+  bWrap.appendChild(tImg);
+  cWrap.appendChild(bWrap);
+  bottleSlice.appendChild(cWrap);
+  bItems.push({ cWrap, bWrap, tImg });
 }
+
+// 섹션 진입/이탈 페이드 (scroll 기반)
+let bFadedIn = false, bFadeTimer = null;
+
+function setBottleFade(fadeIn) {
+  if (bFadedIn === fadeIn) return;
+  bFadedIn = fadeIn;
+  clearTimeout(bFadeTimer);
+  const { bWrap, tImg } = bItems[curB];
+  if (fadeIn) {
+    [bWrap, tImg].forEach(el => {
+      el.style.transition = 'none';
+      el.style.opacity = '0';
+      void el.offsetWidth;
+      el.style.transition = 'opacity 2s ease';
+      el.style.opacity = '1';
+    });
+  } else {
+    [bWrap, tImg].forEach(el => {
+      el.style.transition = 'opacity 2s ease';
+      el.style.opacity = '0';
+    });
+  }
+}
+
+// 수평 전환
+function switchB(dir) {
+  const next = curB + dir;
+  if (next < 0 || next >= 5 || bBusy) return false;
+  bBusy = true;
+  const from = bItems[curB], to = bItems[next];
+
+  // 들어오는 잔 페이드인 + 나가는 잔 페이드아웃
+  [from.bWrap, from.tImg].forEach(el => {
+    el.style.transition = 'opacity 2s ease';
+    el.style.opacity = '0';
+  });
+  [to.bWrap, to.tImg].forEach(el => {
+    el.style.transition = 'none';
+    el.style.opacity = '0';
+  });
+
+  to.cWrap.style.transition = 'none';
+  to.cWrap.style.transform = dir > 0 ? 'translateX(100%)' : 'translateX(-100%)';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const t = 'transform 0.45s ease';
+    from.cWrap.style.transition = t; to.cWrap.style.transition = t;
+    from.cWrap.style.transform = dir > 0 ? 'translateX(-100%)' : 'translateX(100%)';
+    to.cWrap.style.transform = 'translateX(0%)';
+    // 들어오는 잔 페이드인 시작
+    [to.bWrap, to.tImg].forEach(el => {
+      el.style.transition = 'opacity 2s ease';
+      el.style.opacity = '1';
+    });
+    curB = next;
+    setTimeout(() => { bBusy = false; }, 450);
+  }));
+  return true;
+}
+
+function isBottleActive() {
+  const r = bottleSlice.getBoundingClientRect();
+  return r.top <= 5 && r.bottom >= window.innerHeight - 5;
+}
+
+// 스크롤로 섹션 진입/이탈 감지
+wrap.addEventListener('scroll', () => {
+  setBottleFade(isBottleActive());
+}, { passive: true });
+
+// 휠
+wrap.addEventListener('wheel', (e) => {
+  if (!isBottleActive()) return;
+  const dir = e.deltaY > 0 ? 1 : -1;
+  if ((dir === 1 && curB < 4) || (dir === -1 && curB > 0)) {
+    e.preventDefault(); switchB(dir);
+  }
+}, { passive: false });
+
+// 터치
+let bTY = 0;
+bottleSlice.addEventListener('touchstart', e => { bTY = e.touches[0].clientY; }, { passive: true });
+bottleSlice.addEventListener('touchmove', e => {
+  const dy = bTY - e.touches[0].clientY;
+  const dir = dy > 0 ? 1 : -1;
+  if (Math.abs(dy) > 15 && ((dir === 1 && curB < 4) || (dir === -1 && curB > 0))) e.preventDefault();
+}, { passive: false });
+bottleSlice.addEventListener('touchend', e => {
+  const dy = bTY - e.changedTouches[0].clientY;
+  if (Math.abs(dy) < 30) return;
+  switchB(dy > 0 ? 1 : -1);
+}, { passive: true });
+
+const bottleSlices = [bottleSlice];
 
 // ── 정적 슬라이스 데이터 ──────────────────────────────────────
 const STATIC_PAGES = [
@@ -292,16 +370,6 @@ pb.innerHTML = `
 `;
 wrap.appendChild(pb);
 
-// ── 병 슬라이드 수평 효과 ────────────────────────────────────
-function updateHSlides() {
-  const wrapH = wrap.clientHeight;
-  bottleSlices.forEach(page => {
-    const t = Math.max(-1, Math.min(1, page.getBoundingClientRect().top / wrapH));
-    page._hContent.style.transform = `translateX(${t * 100}%)`;
-  });
-}
-wrap.addEventListener('scroll', updateHSlides, { passive: true });
-updateHSlides();
 
 // pb 요소 캐싱 (스크롤 핫패스에서 getElementById 반복 방지)
 const pbLogo = document.getElementById('pb-logo');
@@ -358,6 +426,14 @@ wrap.addEventListener('touchstart', (e) => {
 }, { passive: true });
 
 wrap.addEventListener('touchmove', (e) => {
+  // 병 섹션: 마지막/첫 잔 아니면 수직 스크롤 차단
+  if (isBottleActive()) {
+    const dy = touchStartY - e.touches[0].clientY;
+    const dir = dy > 0 ? 1 : -1;
+    if ((dir === 1 && curB < 4) || (dir === -1 && curB > 0)) {
+      e.preventDefault(); return;
+    }
+  }
   if (isAtLastPage() && (touchStartY - e.touches[0].clientY) > 30 && !infoShown) {
     e.preventDefault(); showInfo();
   }
