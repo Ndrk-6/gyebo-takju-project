@@ -14,7 +14,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
   overflow-x: hidden;
   scroll-snap-type: y mandatory;
   -webkit-overflow-scrolling: touch;
-  background: url('images/bg_paper.png') center/cover no-repeat fixed;
+
 }
 
 .slice {
@@ -33,7 +33,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
   from { opacity: 1; }
   to   { opacity: 0; }
 }
-.text-fadein  { animation: fadeIn  0.8s ease forwards; }
+.text-fadein  { animation: fadeIn  1.5s ease forwards; }
 .text-fadeout { animation: fadeOut 0.5s ease forwards; }
 
 /* 햄버거 버튼 */
@@ -82,18 +82,18 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
     <img src="main/tab_.png" alt="">
     <!-- 메뉴 항목 -->
     <div style="
-      position: absolute; top: 180px; left: 200px;
-      display: flex; flex-direction: column; gap: 32px;
+      position: absolute; top: 21vh; left: 51vw;
+      display: flex; flex-direction: column; gap: 3.8vh;
       font-family: 'GowunBatang', Georgia, serif;
       font-size: 18px; color: #014A2E; font-weight: 400;
     ">
-      <a href="taste-test-share.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/막걸리 유형테스트.svg" style="height:20px; width:auto; display:block;"></a>
-      <a href="map_page.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/막걸리 계보도.svg" style="height:20px; width:auto; display:block;"></a>
-      <a href="event/event_page1.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/이벤트.svg" style="height:20px; width:auto; display:block;"></a>
+      <a href="taste-test-share.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/막걸리 유형테스트.svg" style="height:2.4vh; width:auto; display:block;"></a>
+      <a href="map_page.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/막걸리 계보도.svg" style="height:2.4vh; width:auto; display:block;"></a>
+      <a href="event/event_page1.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/이벤트.svg" style="height:2.4vh; width:auto; display:block;"></a>
     </div>
     <img src="main/button.svg" onclick="closeTab()" style="
-      position: absolute; top: 140px; left: 195px;
-      width: 24px; height: auto; cursor: pointer;
+      position: absolute; top: 17vh; left: 50vw;
+      width: 3vw; min-width: 20px; height: auto; cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     ">
   </div>
@@ -197,7 +197,7 @@ for (let i = 0; i < 5; i++) {
   const div = document.createElement('div');
   div.className = 'slice';
   div.style.backgroundImage = cfg.bg;
-  div.style.backgroundSize     = (i === 2) ? 'cover' : '100% 100%';
+  div.style.backgroundSize     = 'cover';
   div.style.backgroundPosition = (i === 2) ? 'center top' : 'center';
   div.style.position        = 'relative';
   const textEl = document.createElement('img');
@@ -297,7 +297,7 @@ function updateHSlides() {
   const wrapH = wrap.clientHeight;
   bottleSlices.forEach(page => {
     const t = Math.max(-1, Math.min(1, page.getBoundingClientRect().top / wrapH));
-    page._hContent.style.transform = `translateX(${t * 100}%)`;
+    page._hContent.style.transform = `translateX(${t * -100}%)`;
   });
 }
 wrap.addEventListener('scroll', updateHSlides, { passive: true });

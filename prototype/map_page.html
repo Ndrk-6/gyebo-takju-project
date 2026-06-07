@@ -7,21 +7,18 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; height: 100%; overflow: hidden; }
 
-/* 세로 스냅 스크롤 */
+/* 세로 스크롤 */
 #v-scroll {
   width: 100%; height: 100%;
   overflow-y: scroll;
-  scroll-snap-type: y mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
 #v-scroll::-webkit-scrollbar { display: none; }
 
 .v-section {
-  width: 100%; height: 100%;
-  scroll-snap-align: start;
+  width: 100%; height: 100vh;
   position: relative;
-  flex-shrink: 0;
 }
 
 /* ── 섹션1: 막걸리 상세 ── */
@@ -37,7 +34,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
 #detail-section img { animation: fadeIn 0.5s ease forwards; }
 
 /* ── 섹션2: 지도 ── */
-#map-section { overflow: hidden; }
+#map-section {
+  overflow: hidden;
+  background: url('images/bg_paper.png') center / cover;
+}
 
 @keyframes mapFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -68,7 +68,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
 
 .region-btn {
   position: absolute;
-  width: 13%; height: auto;
+  width: 18.2%; height: auto;
   transform: translate(-50%, -50%);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -80,7 +80,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
 .region-wrap {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 13%; z-index: 1;
+  width: 18.2%; z-index: 1;
 }
 .region-wrap > .region-btn {
   position: relative; width: 100%; height: auto;
@@ -116,6 +116,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   transform: translateX(-100%);
   transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  overflow-y: auto;
 }
 #tab-panel img.tab-bg { width: 100%; height: 100%; object-fit: cover; display: block; }
 #tab-overlay.open #tab-panel { transform: translateX(0); }
@@ -140,10 +141,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
     <div id="map-wrap">
       <img class="map-img" src="map/map_images.png" alt="">
 
-      <img class="region-btn" src="map/단양.png" alt="단양" style="left:calc(61.5% - 5px); top:calc(62.3% - 65px);" onclick="goRegion('단양')">
-      <img class="region-btn" src="map/지평.png" alt="지평" style="left:calc(61.5% + 25px); top:calc(62.3% - 50px);" onclick="goRegion('지평')">
-      <img class="region-btn" src="map/청송.png" alt="청송" style="left:calc(61.5% + 20px); top:calc(62.3% + 15px);" onclick="goRegion('청송')">
-      <div class="region-wrap" style="left:calc(61.5% - 10px); top:62.3%;">
+      <img class="region-btn" src="map/단양.png" alt="단양" style="left:61%; top:50.7%;" onclick="goRegion('단양')">
+      <img class="region-btn" src="map/지평.png" alt="지평" style="left:68%; top:53.4%;" onclick="goRegion('지평')">
+      <img class="region-btn" src="map/청송.png" alt="청송" style="left:66%; top:64%;" onclick="goRegion('청송')">
+      <div class="region-wrap" style="left:59%; top:62.3%;">
         <div class="event-popup" id="popup-문경">
           <img src="map/문경이벤트.svg" style="width:100%; display:block;">
           <div onclick="goDetail('map/문경 오미자 막걸리.svg')" style="position:absolute; top:0; left:0; width:100%; height:50%; cursor:pointer; -webkit-tap-highlight-color:transparent;"></div>
@@ -152,7 +153,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
         <img class="region-btn" src="map/문경.png" alt="문경" onclick="goRegion('문경')">
       </div>
       <img class="region-btn" src="map/공주.png" alt="공주" style="left:40.4%; top:66%;" onclick="goRegion('공주')">
-      <div class="region-wrap" style="left:34%; top:81%;">
+      <div class="region-wrap" style="left:35%; top:81%;">
         <div class="event-popup" id="popup-해남">
           <img src="map/해남이벤트.svg" style="width:100%; display:block;">
           <div onclick="goDetail('map/해창 생막걸리9도.svg')" style="position:absolute; top:0; left:0; width:100%; height:50%; cursor:pointer; -webkit-tap-highlight-color:transparent;"></div>
@@ -160,7 +161,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
         </div>
         <img class="region-btn" src="map/해남.png" alt="해남" onclick="goRegion('해남')">
       </div>
-      <img class="region-btn" src="map/고흥.png" alt="고흥" style="left:44%; top:81%;" onclick="goRegion('고흥')">
+      <img class="region-btn" src="map/고흥.png" alt="고흥" style="left:43%; top:81%;" onclick="goRegion('고흥')">
     </div>
   </div>
 
@@ -178,12 +179,12 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
   <div id="tab-bg" onclick="closeTab()"></div>
   <div id="tab-panel">
     <img class="tab-bg" src="main/tab_.png" alt="">
-    <div style="position:absolute;top:180px;left:200px;display:flex;flex-direction:column;gap:32px;">
-      <a href="taste-test-share.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/막걸리 유형테스트.svg" style="height:20px;width:auto;display:block;"></a>
-      <a href="map_page.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/막걸리 계보도.svg" style="height:20px;width:auto;display:block;"></a>
-      <a href="event/event_page1.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/이벤트.svg" style="height:20px;width:auto;display:block;"></a>
+    <div style="position:absolute;top:21vh;left:51vw;display:flex;flex-direction:column;gap:3.8vh;">
+      <a href="taste-test-share.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/막걸리 유형테스트.svg" style="height:2.4vh;width:auto;display:block;"></a>
+      <a href="map_page.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/막걸리 계보도.svg" style="height:2.4vh;width:auto;display:block;"></a>
+      <a href="event/event_page1.html" style="-webkit-tap-highlight-color:transparent;"><img src="main/이벤트.svg" style="height:2.4vh;width:auto;display:block;"></a>
     </div>
-    <img src="main/button.svg" onclick="closeTab()" style="position:absolute;top:140px;left:195px;width:24px;height:auto;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+    <img src="main/button.svg" onclick="closeTab()" style="position:absolute;top:17vh;left:50vw;width:3vw;min-width:20px;height:auto;cursor:pointer;-webkit-tap-highlight-color:transparent;">
   </div>
 </div>
 
@@ -196,13 +197,30 @@ const regionData = {
   '고흥': 'map/고흥 풍양 유자 막걸리.svg'
 };
 
-const vScroll      = document.getElementById('v-scroll');
+const vScroll       = document.getElementById('v-scroll');
 const detailSection = document.getElementById('detail-section');
+const mapSection    = document.getElementById('map-section');
+
+function fitMapSection() {
+  const mapWrap = document.getElementById('map-wrap');
+  if (!mapWrap) return;
+  const needed = mapWrap.offsetTop + mapWrap.offsetHeight + 60;
+  mapSection.style.height = Math.max(window.innerHeight, needed) + 'px';
+}
+
+// 지도 이미지 로드 후 섹션 높이 조정
+const mapImg = document.querySelector('#map-wrap .map-img');
+if (mapImg) {
+  if (mapImg.complete) fitMapSection();
+  else mapImg.addEventListener('load', fitMapSection);
+}
+window.addEventListener('resize', fitMapSection);
 
 // 진입 시 지도(섹션2)를 즉시 표시
-vScroll.scrollTop = vScroll.clientHeight;
+vScroll.scrollTop = mapSection.offsetTop;
 window.addEventListener('load', () => {
-  vScroll.scrollTop = vScroll.clientHeight;
+  fitMapSection();
+  vScroll.scrollTop = mapSection.offsetTop;
 });
 
 function goDetail(svgPath) {
@@ -225,21 +243,61 @@ function goRegion(name) {
 function openTab()  { document.getElementById('tab-overlay').classList.add('open'); }
 function closeTab() { document.getElementById('tab-overlay').classList.remove('open'); }
 
+// ── 버튼 위치 조정 모드 (개발용) ─────────────────────────────
+// URL에 ?edit 붙이면 활성화: map_page.html?edit
+if (location.search.includes('edit')) {
+  window.addEventListener('load', () => {
+    const wrap = document.getElementById('map-wrap');
+    document.querySelectorAll('.region-btn, .region-wrap').forEach(el => {
+      el.style.cursor = 'grab';
+      let startX, startY, origLeft, origTop;
+      el.addEventListener('pointerdown', e => {
+        e.stopPropagation();
+        el.setPointerCapture(e.pointerId);
+        el.style.cursor = 'grabbing';
+        startX = e.clientX; startY = e.clientY;
+        origLeft = parseFloat(el.style.left) || 0;
+        origTop  = parseFloat(el.style.top)  || 0;
+      });
+      el.addEventListener('pointermove', e => {
+        if (e.buttons !== 1) return;
+        const dx = (e.clientX - startX) / wrap.offsetWidth  * 100;
+        const dy = (e.clientY - startY) / wrap.offsetHeight * 100;
+        el.style.left = (origLeft + dx) + '%';
+        el.style.top  = (origTop  + dy) + '%';
+      });
+      el.addEventListener('pointerup', e => {
+        el.style.cursor = 'grab';
+        console.log(`${el.alt || el.className}: left:${parseFloat(el.style.left).toFixed(1)}%; top:${parseFloat(el.style.top).toFixed(1)}%`);
+      });
+    });
+    console.log('🗺 버튼 위치 편집 모드 ON — 드래그 후 콘솔에서 좌표 확인');
+  });
+}
+
 // 지도 섹션 진입 시 애니메이션 재초기화
-const mapAnimEls = ['bg', 'txt1', 'txt2', 'map-wrap', 'txt3'];
+function resetMapAnims() {
+  const targets = [
+    document.getElementById('bg'),
+    document.getElementById('txt1'),
+    document.getElementById('txt2'),
+    document.getElementById('txt3'),
+    document.querySelector('#map-wrap .map-img'),
+    ...document.querySelectorAll('.region-btn, .region-wrap'),
+  ].filter(Boolean);
+
+  targets.forEach(el => { el.style.animation = 'none'; el.style.opacity = '0'; });
+  void document.getElementById('map-section').offsetWidth;
+  targets.forEach(el => { el.style.animation = ''; el.style.opacity = ''; });
+  document.querySelectorAll('.event-popup').forEach(p => p.classList.remove('show'));
+}
+
 let mapInitialized = false;
 const mapObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       if (!mapInitialized) { mapInitialized = true; return; }
-      mapAnimEls.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.style.animation = 'none';
-        void el.offsetWidth;
-        el.style.animation = '';
-      });
-      document.querySelectorAll('.event-popup').forEach(p => p.classList.remove('show'));
+      resetMapAnims();
     }
   });
 }, { threshold: 0.6, root: vScroll });
