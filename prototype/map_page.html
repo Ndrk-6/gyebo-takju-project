@@ -275,9 +275,9 @@ function makeRatingGrid(ratings) {
     const cups = Array.from({length: 5}, (_, i) => {
       const isFull = i < filled;
       const delay = (rowIdx * 5 + i) * 80 + 1300;
-      return `<img src="map/${isFull ? '풀잔' : '빈잔'}.svg" style="width:38px; height:19px; opacity:0; animation:mapFadeIn 0.4s ease ${delay}ms forwards;" alt="">`;
+      return `<img src="map/${isFull ? '풀잔' : '빈잔'}.svg" style="width:8.5vw; height:auto; opacity:0; animation:mapFadeIn 0.4s ease ${delay}ms forwards;" alt="">`;
     }).join('');
-    return `<div style="display:flex; gap:5px;">${cups}</div>`;
+    return `<div style="display:flex; gap:1.1vw;">${cups}</div>`;
   }).join('');
 }
 
@@ -302,9 +302,9 @@ function goDetail(key) {
         ${t ? `<img src="map/${t}_t1.svg" style="width:58%; height:auto; opacity:0; animation:mapFadeIn 0.5s ease 100ms forwards;" alt="">` : ''}
         ${imgSrc ? `<img src="${imgSrc}" style="width:17%; height:auto; opacity:0; animation:mapFadeIn 0.5s ease 500ms forwards;" alt="">` : ''}
         ${t ? `<img src="map/${t}_t2.svg" style="width:62%; height:auto; opacity:0; animation:mapFadeIn 0.5s ease 900ms forwards;" alt="">` : ''}
-        <div style="position:absolute; bottom:136px; left:15%; transform:scale(0.88); transform-origin:bottom left; display:flex; align-items:flex-start; gap:6px;">
-          <img src="map/평가.svg" style="width:55px; height:159px; opacity:0; animation:mapFadeIn 0.5s ease 1200ms forwards;" alt="">
-          <div style="display:flex; flex-direction:column; justify-content:space-between; height:159px; padding:6px 0 7px; box-sizing:border-box;">
+        <div style="position:absolute; bottom:16vh; left:15%; display:flex; align-items:flex-start; gap:1.3vw;">
+          <img src="map/평가.svg" style="width:12.5vw; height:auto; opacity:0; animation:mapFadeIn 0.5s ease 1200ms forwards;" alt="">
+          <div style="display:flex; flex-direction:column; justify-content:space-between; height:36vw; padding:1.3vw 0 1.6vw; box-sizing:border-box;">
             ${makeRatingGrid(ratings)}
           </div>
         </div>
