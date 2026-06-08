@@ -7,24 +7,18 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; height: 100%; overflow: hidden; }
 
-#scroll-wrap {
-  display: flex;
-  width: 100%; height: 100%;
-  overflow-x: scroll;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-#scroll-wrap::-webkit-scrollbar { display: none; }
-
-.ep {
-  flex-shrink: 0;
-  width: 100%; height: 100%;
-  scroll-snap-align: start;
+#container {
   position: relative;
+  width: 100%; height: 100%;
   overflow: hidden;
 }
-.ep img.bg { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+
+.panel {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.panel img.bg { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
 
 /* 햄버거 */
 #hamburger {
@@ -57,17 +51,14 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
 .fadeout { animation: fadeOut 0.5s ease forwards; }
 
 .txt { position: absolute; height: auto; opacity: 0; pointer-events: none; z-index: 100; }
-/* 공통 */
 .txt1 { top: 140px; right: 40px; }
 .txt2 { bottom: 20px; left: 20px; }
 
-/* txt1 개별 width (page2 기준 스케일 통일) + top 140px */
 #t1p1 { width: 54vw; top: 140px; }
 #t1p2 { width: 60vw; top: 140px; left: 20px; right: auto; }
 #t1p3 { width: 74vw; top: 140px; right: 40px; left: auto; }
 #t1p4 { width: 41vw; top: 140px; left: 20px; right: auto; }
 
-/* txt2 개별 width (page4 기준 스케일 통일) */
 #t2p1 { width: 82vw; }
 #t2p2 { width: 67vw; right: 20px; left: auto; }
 #t2p3 { width: 73vw; }
@@ -96,41 +87,41 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
 </head>
 <body>
 
-<div id="scroll-wrap">
+<div id="container">
 
   <!-- 1페이지 -->
-  <div class="ep" id="ep1">
+  <div class="panel" id="ep1">
     <img class="bg" src="event_page1.svg" alt="">
     <img class="txt txt1" id="t1p1" src="event_1_text1.svg" alt="">
     <img class="txt txt2" id="t2p1" src="event_1_text2.svg" alt="">
-    <div class="next-btn" onclick="goTo(1)"></div>
+    <div class="next-btn" onclick="switchPanel(1)"></div>
     <a class="logo-btn" href="../main_page.html"></a>
   </div>
 
   <!-- 2페이지 -->
-  <div class="ep" id="ep2">
+  <div class="panel" id="ep2">
     <img class="bg" src="event_2_page.svg" alt="">
     <img class="txt txt1" id="t1p2" src="event_2_text1.svg" alt="">
     <img class="txt txt2" id="t2p2" src="event_2_text2.svg" alt="">
-    <div class="next-btn" onclick="goTo(2)"></div>
+    <div class="next-btn" onclick="switchPanel(1)"></div>
     <a class="logo-btn" href="../main_page.html"></a>
   </div>
 
   <!-- 3페이지 -->
-  <div class="ep" id="ep3">
+  <div class="panel" id="ep3">
     <img class="bg" src="event_3_page.svg" alt="">
     <img class="txt txt1" id="t1p3" src="event_3_text1.svg" alt="">
     <img class="txt txt2" id="t2p3" src="event_3_text2.svg" alt="">
-    <div class="next-btn" onclick="goTo(3)"></div>
+    <div class="next-btn" onclick="switchPanel(1)"></div>
     <a class="logo-btn" href="../main_page.html"></a>
   </div>
 
   <!-- 4페이지 -->
-  <div class="ep" id="ep4">
+  <div class="panel" id="ep4">
     <img class="bg" src="event_4_page.svg" alt="">
     <img class="txt txt1" id="t1p4" src="event_4_text1.svg" alt="">
     <img class="txt txt2" id="t2p4" src="event_4_text2.svg" alt="">
-    <div class="next-btn" onclick="goTo(0)"></div>
+    <div class="next-btn" onclick="switchPanel(-cur)"></div>
     <a class="logo-btn" href="../main_page.html"></a>
   </div>
 
@@ -154,19 +145,26 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
 </div>
 
 <script>
-const wrap = document.getElementById('scroll-wrap');
+const EASE = 'cubic-bezier(0.4,0,0.2,1)';
 
-function openTab()  { document.getElementById('tab-overlay').classList.add('open');    }
-function closeTab() { document.getElementById('tab-overlay').classList.remove('open'); }
-function goNext()   { goTo(1); }
-function goTo(page) { wrap.scrollTo({ left: wrap.clientWidth * page, behavior: 'smooth' }); }
+const panels = [
+  { el: document.getElementById('ep1'), t1: document.getElementById('t1p1'), t2: document.getElementById('t2p1') },
+  { el: document.getElementById('ep2'), t1: document.getElementById('t1p2'), t2: document.getElementById('t2p2') },
+  { el: document.getElementById('ep3'), t1: document.getElementById('t1p3'), t2: document.getElementById('t2p3') },
+  { el: document.getElementById('ep4'), t1: document.getElementById('t1p4'), t2: document.getElementById('t2p4') },
+];
 
-// 페이드인: 현재 보이는 페이지 기준
-function fadeInPage(t1, t2) {
+let cur = 0, busy = false;
+
+panels.forEach((p, i) => {
+  p.el.style.transform = i === 0 ? 'translateX(0%)' : 'translateX(100%)';
+});
+
+function fadeIn(t1, t2) {
   setTimeout(() => { t1.classList.add('fadein'); t1.style.opacity = ''; }, 300);
   setTimeout(() => { t2.classList.add('fadein'); t2.style.opacity = ''; }, 1000);
 }
-function fadeOutPage(t1, t2) {
+function fadeOut(t1, t2) {
   [t1, t2].forEach(el => {
     el.classList.remove('fadein');
     el.classList.add('fadeout');
@@ -174,30 +172,55 @@ function fadeOutPage(t1, t2) {
   });
 }
 
-// 첫 페이지 진입
-fadeInPage(document.getElementById('t1p1'), document.getElementById('t2p1'));
+fadeIn(panels[0].t1, panels[0].t2);
 
-// 스크롤로 페이지 전환 감지
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    const id = entry.target.id;
-    if (id === 'ep1') {
-      const t1 = document.getElementById('t1p1'), t2 = document.getElementById('t2p1');
-      entry.isIntersecting ? fadeInPage(t1, t2) : fadeOutPage(t1, t2);
-    } else if (id === 'ep2') {
-      const t1 = document.getElementById('t1p2'), t2 = document.getElementById('t2p2');
-      entry.isIntersecting ? fadeInPage(t1, t2) : fadeOutPage(t1, t2);
-    } else if (id === 'ep3') {
-      const t1 = document.getElementById('t1p3'), t2 = document.getElementById('t2p3');
-      entry.isIntersecting ? fadeInPage(t1, t2) : fadeOutPage(t1, t2);
-    } else if (id === 'ep4') {
-      const t1 = document.getElementById('t1p4'), t2 = document.getElementById('t2p4');
-      entry.isIntersecting ? fadeInPage(t1, t2) : fadeOutPage(t1, t2);
-    }
-  });
-}, { threshold: 0.6, root: wrap });
+function switchPanel(dir) {
+  const next = cur + dir;
+  if (next < 0 || next >= panels.length || busy) return false;
+  busy = true;
 
-['ep1','ep2','ep3','ep4'].forEach(id => observer.observe(document.getElementById(id)));
+  const from = panels[cur], to = panels[next];
+  fadeOut(from.t1, from.t2);
+
+  to.el.style.transition = 'none';
+  to.el.style.transform = dir > 0 ? 'translateX(100%)' : 'translateX(-100%)';
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const t = `transform 0.45s ${EASE}`;
+    from.el.style.transition = t;
+    to.el.style.transition = t;
+    from.el.style.transform = dir > 0 ? 'translateX(-100%)' : 'translateX(100%)';
+    to.el.style.transform = 'translateX(0%)';
+    fadeIn(to.t1, to.t2);
+    cur = next;
+    setTimeout(() => { busy = false; }, 450);
+  }));
+  return true;
+}
+
+// 휠
+document.addEventListener('wheel', (e) => {
+  const dir = e.deltaY > 0 ? 1 : -1;
+  if ((dir === 1 && cur < panels.length - 1) || (dir === -1 && cur > 0)) {
+    e.preventDefault();
+    switchPanel(dir);
+  }
+}, { passive: false });
+
+// 터치
+let tY = 0;
+document.addEventListener('touchstart', e => { tY = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dy = tY - e.changedTouches[0].clientY;
+  if (Math.abs(dy) < 30) return;
+  const dir = dy > 0 ? 1 : -1;
+  if ((dir === 1 && cur < panels.length - 1) || (dir === -1 && cur > 0)) {
+    switchPanel(dir);
+  }
+}, { passive: true });
+
+function openTab()  { document.getElementById('tab-overlay').classList.add('open');    }
+function closeTab() { document.getElementById('tab-overlay').classList.remove('open'); }
 </script>
 </body>
 </html>
