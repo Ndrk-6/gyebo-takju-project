@@ -13,15 +13,35 @@ panels.forEach((p, i) => {
   p.el.style.transform = i === 0 ? 'translateX(0%)' : 'translateX(100%)';
 });
 
-function fadeIn(t1, t2) {
-  setTimeout(() => { t1.classList.add('fadein'); t1.style.opacity = ''; }, 300);
-  setTimeout(() => { t2.classList.add('fadein'); t2.style.opacity = ''; }, 1000);
+const timers = new WeakMap();
+
+function clearElTimers(el) {
+  const ids = timers.get(el);
+  if (ids) ids.forEach(clearTimeout);
+  timers.set(el, []);
 }
+
+function addElTimer(el, id) {
+  if (!timers.has(el)) timers.set(el, []);
+  timers.get(el).push(id);
+}
+
+function fadeIn(t1, t2) {
+  [t1, t2].forEach(el => {
+    clearElTimers(el);
+    el.classList.remove('fadein', 'fadeout');
+    el.style.opacity = '0';
+  });
+  addElTimer(t1, setTimeout(() => { t1.classList.add('fadein'); t1.style.opacity = ''; }, 300));
+  addElTimer(t2, setTimeout(() => { t2.classList.add('fadein'); t2.style.opacity = ''; }, 1000));
+}
+
 function fadeOut(t1, t2) {
   [t1, t2].forEach(el => {
+    clearElTimers(el);
     el.classList.remove('fadein');
     el.classList.add('fadeout');
-    setTimeout(() => { el.classList.remove('fadeout'); el.style.opacity = '0'; }, 500);
+    addElTimer(el, setTimeout(() => { el.classList.remove('fadeout'); el.style.opacity = '0'; }, 500));
   });
 }
 
