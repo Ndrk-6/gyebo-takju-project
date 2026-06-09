@@ -1,0 +1,139 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+
+/* 세로 스크롤 */
+#v-scroll {
+  width: 100%; height: 100%;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+#v-scroll::-webkit-scrollbar { display: none; }
+
+.v-section {
+  width: 100%; height: 100vh;
+  position: relative;
+}
+
+/* ── 섹션1: 막걸리 상세 ── */
+#detail-section {
+  height: auto;
+  min-height: 100vh;
+  overflow-y: visible;
+  overflow-x: hidden;
+  background: url('images/bg_paper.png') center / cover;
+}
+#detail-section::-webkit-scrollbar { display: none; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+#detail-section img { animation: fadeIn 0.5s ease forwards; }
+
+/* ── 섹션2: 지도 ── */
+#map-section {
+  overflow: hidden;
+  background: url('images/bg_paper.png') center / cover;
+}
+
+@keyframes mapFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+#map-spine { animation: mapFadeIn 0.6s ease 0s forwards; opacity: 0; }
+#map-topbar { animation: mapFadeIn 0.6s ease 0.3s forwards; opacity: 0; }
+#txt1     { animation: mapFadeIn 0.6s ease 0.3s forwards; opacity: 0; }
+#txt2     { animation: mapFadeIn 0.6s ease 0.6s forwards; opacity: 0; }
+#txt3     { animation: mapFadeIn 0.6s ease 1.3s forwards; opacity: 0; }
+#map-wrap img.map-img { animation: mapFadeIn 0.6s ease 0.6s forwards; opacity: 0; }
+.region-btn, .region-wrap, .region-hit { animation: mapFadeIn 0.6s ease 1.3s forwards; opacity: 0; }
+
+.txt-overlay {
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  height: auto; pointer-events: none;
+}
+#txt1 { top: 12%;   width: 37%; }
+#txt2 { top: 16.1%; width: 57%; }
+#txt3 { bottom: 0%;  width: 42%; }
+
+#map-wrap {
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  top: 24%; width: 83%;
+}
+#map-wrap img.map-img { width: 100%; height: auto; display: block; }
+
+/* 시각적 버튼 크기 */
+.region-btn {
+  position: absolute;
+  width: 18.2%; height: auto;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease;
+  z-index: 1;
+}
+.region-btn:active { transform: translate(-50%, -50%) scale(0.92); }
+
+/* 터치 영역 10%, 시각 영역 18.2% (182% of wrapper) */
+.region-hit {
+  position: absolute;
+  width: 10%;
+  transform: translate(-50%, -50%);
+  overflow: visible;
+  z-index: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.region-hit > img {
+  display: block;
+  width: 182%; height: auto;
+  margin-left: -41%;
+  pointer-events: none;
+  transition: transform 0.15s ease;
+}
+.region-hit:active > img { transform: scale(0.92); }
+
+.region-wrap {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 18.2%; z-index: 1;
+  pointer-events: none;
+}
+.region-wrap > .region-btn {
+  position: relative; width: 100%; height: auto;
+  transform: none; left: auto; top: auto; display: block;
+  pointer-events: none;
+}
+.region-wrap > .region-btn:active { transform: scale(0.92); }
+
+.event-popup {
+  position: absolute;
+  bottom: 100%; left: 50%;
+  transform: translateX(-50%);
+  width: 345%; height: auto;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 10;
+}
+.event-popup.show { opacity: 1; pointer-events: auto; cursor: pointer; }
+
+/* 햄버거 */
+#hamburger {
+  position: fixed;
+  left: 4.98vw; top: 5.38vh;
+  z-index: 200; width: 5.47vw; height: 1.83vh;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* 탭 오버레이 */
+#tab-overlay { position: fixed; inset: 0; z-index: 300; pointer-events: none; }
+#tab-overlay.open { pointer-events: auto; }
+#tab-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.35s ease; }
+#tab-overlay.open #tab-bg { opacity: 1; }
+#tab-panel {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  overflow-y: auto;
+}
+#tab-panel img.tab-bg { width: 100%; height: 100%; object-fit: cover; display: block; }
+#tab-overlay.open #tab-panel { transform: translateX(0); }

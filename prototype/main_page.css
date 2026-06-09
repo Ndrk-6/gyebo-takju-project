@@ -1,0 +1,72 @@
+@font-face {
+  font-family: 'GowunBatang';
+  src: url('fonts/GowunBatang-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'GowunBatang';
+  src: url('fonts/GowunBatang-Bold.ttf') format('truetype');
+  font-weight: 700;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+
+#wrap {
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+
+}
+
+.slice {
+  width: 100%;
+  height: 100vh;
+  scroll-snap-align: start;
+  background-repeat: no-repeat;
+}
+.slice::-webkit-scrollbar { display: none; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+.text-fadein  { animation: fadeIn  1.5s ease forwards; }
+.text-fadeout { animation: fadeOut 0.5s ease forwards; }
+
+/* 햄버거 버튼 */
+#hamburger {
+  position: fixed; top: 48px; left: 19px; z-index: 200;
+  display: flex; flex-direction: column; gap: 3.6px;
+  cursor: pointer; padding: 4px;
+}
+#hamburger span {
+  display: block; width: 18px; height: 1.5px; background: #ffffff; border-radius: 2px;
+}
+
+/* tab 오버레이 */
+#tab-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  pointer-events: none;
+}
+#tab-overlay.open { pointer-events: auto; }
+#tab-bg {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.3);
+  opacity: 0; transition: opacity 0.35s ease;
+}
+#tab-overlay.open #tab-bg { opacity: 1; }
+#tab-panel {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+#tab-panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#tab-overlay.open #tab-panel { transform: translateX(0); }
